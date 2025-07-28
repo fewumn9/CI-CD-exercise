@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        NODE_VERSION = '22.x'
+        NODE_VERSION = '18.x'
     }
 
     stages {
@@ -17,7 +17,7 @@ pipeline {
                 script {
                     if (isUnix()) {
                         sh '''
-                            # Load nvm and use Node.js 22.x if installed
+                            # Load nvm and use Node.js 18.x if installed
                             if command -v nvm >/dev/null 2>&1; then
                                 source ~/.nvm/nvm.sh
                                 nvm install ${NODE_VERSION}
