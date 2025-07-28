@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        NODE_VERSION = '22.x'
+        NODE_ENV = 'development'
     }
 
     stages {
@@ -12,23 +12,20 @@ pipeline {
             }
         }
 
-        stage('Setup Node.js') {
+        stage('Verify Node.js') {
             steps {
                 script {
                     if (isUnix()) {
                         sh '''
-                            if ! command -v node &> /dev/null; then
-                                echo "Node.js not found, installing..."
-                                curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
-                                sudo apt-get install -y nodejs
-                            fi
-                            node --version
-                            npm --version
+                            echo "Node.js version:"
+                            node -v
+                            echo "npm version:"
+                            npm -v
                         '''
                     } else {
                         bat '''
-                            node --version
-                            npm --version
+                            node -v
+                            npm -v
                         '''
                     }
                 }
@@ -51,9 +48,9 @@ pipeline {
             steps {
                 script {
                     if (isUnix()) {
-                        sh 'node ./node_modules/mocha/bin/mocha tests/*.js'
+                        sh 'npx mocha tests/*.js'
                     } else {
-                        bat 'node ./node_modules/mocha/bin/mocha tests/*.js'
+                        bat 'npx mocha tests/*.js'
                     }
                 }
             }
