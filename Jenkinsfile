@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        NODE_ENV = 'development'
+        NODE_VERSION = '22.x'
     }
 
     stages {
@@ -12,21 +12,24 @@ pipeline {
             }
         }
 
-        stage('Verify Node.js') {
+        stage('Setup Node.js') {
             steps {
                 script {
                     if (isUnix()) {
                         sh '''
-                            echo "Node.js version:"
+                            # Load nvm and use Node.js 22.x if installed
+                            if command -v nvm >/dev/null 2>&1; then
+                                source ~/.nvm/nvm.sh
+                                nvm install ${NODE_VERSION}
+                                nvm use ${NODE_VERSION}
+                            else
+                                echo "nvm not found, make sure Node.js ${NODE_VERSION} is installed"
+                            fi
                             node -v
-                            echo "npm version:"
                             npm -v
                         '''
                     } else {
-                        bat '''
-                            node -v
-                            npm -v
-                        '''
+                        bat 'node -v && npm -v'
                     }
                 }
             }
@@ -44,13 +47,31 @@ pipeline {
             }
         }
 
+        stage('Start app in background') {
+            steps {
+                script {
+                    if (isUnix()) {
+                        sh '''
+                            npm run start &        # Start app in background
+                            sleep 5                # Wait for server to boot
+                        '''
+                    } else {
+                        bat '''
+                            start /B npm run start
+                            timeout /T 5
+                        '''
+                    }
+                }
+            }
+        }
+
         stage('Run tests') {
             steps {
                 script {
                     if (isUnix()) {
-                        sh 'npx mocha tests/*.js'
+                        sh 'npm test'
                     } else {
-                        bat 'npx mocha tests/*.js'
+                        bat 'npm test'
                     }
                 }
             }
@@ -63,3 +84,4 @@ pipeline {
         }
     }
 }
+
