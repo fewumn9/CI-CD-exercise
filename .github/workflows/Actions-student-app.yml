@@ -1,4 +1,4 @@
-name: CI for My Node App
+name: CI for the student registry app
 
 on:
   push:
@@ -29,7 +29,7 @@ jobs:
       - name: Start app in background
         run: |
           npm run start &        # Start the app in the background
-          sleep 5                # Wait a bit for the server to boot
+          sleep 5                # give the server time to boot
 
       - name: Run tests
         run: npm test
