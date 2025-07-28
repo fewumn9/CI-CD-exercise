@@ -17,19 +17,19 @@ pipeline {
                 script {
                     if (isUnix()) {
                         sh '''
-                            # Load nvm and use Node.js 18.x if installed
-                            if command -v nvm >/dev/null 2>&1; then
-                                source ~/.nvm/nvm.sh
-                                nvm install ${NODE_VERSION}
-                                nvm use ${NODE_VERSION}
-                            else
-                                echo "nvm not found, make sure Node.js ${NODE_VERSION} is installed"
+                            if ! command -v node &> /dev/null; then
+                                echo "Node.js not found, installing..."
+                                curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+                                sudo apt-get install -y nodejs
                             fi
-                            node -v
-                            npm -v
+                            node --version
+                            npm --version
                         '''
                     } else {
-                        bat 'node -v && npm -v'
+                        bat '''
+                            node --version
+                            npm --version
+                        '''
                     }
                 }
             }
@@ -52,13 +52,13 @@ pipeline {
                 script {
                     if (isUnix()) {
                         sh '''
-                            npm run start &        # Start app in background
-                            sleep 5                # Wait for server to boot
+                            nohup npm start > app.log 2>&1 &
+                            sleep 5
                         '''
                     } else {
                         bat '''
-                            start /B npm run start
-                            timeout /T 5
+                            start /b npm start
+                            timeout /t 5
                         '''
                     }
                 }
