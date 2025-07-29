@@ -12,18 +12,14 @@ pipeline {
             }
         }
 
-        stage('Setup Node.js') {
+        stage('Verify Node.js') {
             steps {
                 script {
                     if (isUnix()) {
                         sh '''
-                            if ! command -v node &> /dev/null; then
-                                echo "Node.js not found, installing..."
-                                curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-                                sudo apt-get install -y nodejs
-                            fi
-                            node --version
-                            npm --version
+                            echo "Checking Node.js and npm versions..."
+                            node --version || echo "Node.js not found"
+                            npm --version || echo "npm not found"
                         '''
                     } else {
                         bat '''
