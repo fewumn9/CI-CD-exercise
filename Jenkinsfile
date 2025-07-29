@@ -47,31 +47,13 @@ pipeline {
             }
         }
 
-        stage('Start app in background') {
-            steps {
-                script {
-                    if (isUnix()) {
-                        sh '''
-                            nohup npm start > app.log 2>&1 &
-                            sleep 5
-                        '''
-                    } else {
-                        bat '''
-                            start /b npm start
-                            timeout /t 5
-                        '''
-                    }
-                }
-            }
-        }
-
         stage('Run tests') {
             steps {
                 script {
                     if (isUnix()) {
-                        sh 'npm test'
+                        sh 'node ./node_modules/mocha/bin/mocha tests/*.js'
                     } else {
-                        bat 'npm test'
+                        bat 'node ./node_modules/mocha/bin/mocha tests/*.js'
                     }
                 }
             }
@@ -84,4 +66,3 @@ pipeline {
         }
     }
 }
-
